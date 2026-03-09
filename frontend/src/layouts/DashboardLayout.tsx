@@ -20,7 +20,6 @@ import {
   Leaderboard as LeaderboardIcon,
   EmojiEvents as AchievementsIcon,
   Chat as ChatIcon,
-  Person as PersonIcon,
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';

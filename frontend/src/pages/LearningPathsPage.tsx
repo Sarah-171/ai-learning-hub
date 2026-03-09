@@ -30,16 +30,19 @@ import {
   MenuBook as LessonsIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 // --- Types ---
 
 interface Lesson {
+  slug: string;
   title: string;
   completed: boolean;
 }
 
 interface LearningPath {
   id: number;
+  slug: string;
   icon: React.ReactNode;
   title: string;
   description: string;
@@ -54,16 +57,15 @@ interface LearningPath {
 const learningPaths: LearningPath[] = [
   {
     id: 1,
+    slug: 'ai-grundlagen',
     icon: <AIIcon sx={{ fontSize: 32 }} />,
     title: 'AI Grundlagen',
     description: 'Verstehe die Basis von künstlicher Intelligenz: Geschichte, Konzepte und Anwendungsbereiche.',
     lessons: [
-      { title: 'Was ist AI?', completed: true },
-      { title: 'Geschichte der AI', completed: true },
-      { title: 'Typen von AI-Systemen', completed: true },
-      { title: 'Supervised vs. Unsupervised Learning', completed: true },
-      { title: 'Neuronale Netze Grundlagen', completed: false },
-      { title: 'AI im Alltag', completed: false },
+      { slug: 'was-ist-ki', title: 'Was ist Künstliche Intelligenz?', completed: true },
+      { slug: 'wie-funktionieren-llms', title: 'Wie funktionieren Large Language Models?', completed: true },
+      { slug: 'tokens-kontext-temperatur', title: 'Tokens, Kontext und Temperatur', completed: false },
+      { slug: 'dein-erster-prompt', title: 'Dein erster Prompt', completed: false },
     ],
     level: 'Einsteiger',
     levelColor: '#00A76F',
@@ -71,18 +73,14 @@ const learningPaths: LearningPath[] = [
   },
   {
     id: 2,
+    slug: 'prompt-engineering',
     icon: <DataIcon sx={{ fontSize: 32 }} />,
     title: 'Prompt Engineering',
     description: 'Lerne, wie du durch gezielte Prompts bessere Ergebnisse von AI-Modellen erzielst.',
     lessons: [
-      { title: 'Was sind Prompts?', completed: true },
-      { title: 'Zero-Shot vs. Few-Shot', completed: true },
-      { title: 'Chain-of-Thought Prompting', completed: true },
-      { title: 'System-Prompts gestalten', completed: false },
-      { title: 'Prompt-Iteration & Testing', completed: false },
-      { title: 'Fortgeschrittene Techniken', completed: false },
-      { title: 'Prompt Security', completed: false },
-      { title: 'Praxisprojekt', completed: false },
+      { slug: 'klare-anweisungen', title: 'Klare Anweisungen formulieren', completed: true },
+      { slug: 'few-shot-prompting', title: 'Few-Shot Prompting', completed: true },
+      { slug: 'chain-of-thought', title: 'Chain-of-Thought', completed: false },
     ],
     level: 'Mittel',
     levelColor: '#FFC107',
@@ -90,20 +88,16 @@ const learningPaths: LearningPath[] = [
   },
   {
     id: 3,
+    slug: 'agentic-workflows',
     icon: <MLIcon sx={{ fontSize: 32 }} />,
-    title: 'Machine Learning',
-    description: 'Tauche ein in ML-Algorithmen: von linearer Regression bis zu Deep Learning.',
+    title: 'Agentic Workflows',
+    description: 'Baue autonome AI-Systeme mit Tool Use, Multi-Agent Architekturen und MCP.',
     lessons: [
-      { title: 'ML-Überblick', completed: true },
-      { title: 'Lineare Regression', completed: true },
-      { title: 'Klassifikation', completed: false },
-      { title: 'Decision Trees', completed: false },
-      { title: 'Ensemble-Methoden', completed: false },
-      { title: 'Clustering', completed: false },
-      { title: 'Feature Engineering', completed: false },
-      { title: 'Modell-Evaluation', completed: false },
-      { title: 'Deep Learning Intro', completed: false },
-      { title: 'Praxisprojekt', completed: false },
+      { slug: 'was-sind-ai-agents', title: 'Was sind AI Agents?', completed: true },
+      { slug: 'tool-use-function-calling', title: 'Tool Use und Function Calling', completed: false },
+      { slug: 'multi-agent-systeme', title: 'Multi-Agent Systeme', completed: false },
+      { slug: 'mcp-model-context-protocol', title: 'MCP — Model Context Protocol', completed: false },
+      { slug: 'eigene-workflows-bauen', title: 'Eigene Workflows bauen', completed: false },
     ],
     level: 'Fortgeschritten',
     levelColor: '#FF5630',
@@ -111,17 +105,15 @@ const learningPaths: LearningPath[] = [
   },
   {
     id: 4,
+    slug: 'computer-vision',
     icon: <VisionIcon sx={{ fontSize: 32 }} />,
     title: 'Computer Vision',
     description: 'Erfahre, wie Maschinen Bilder und Videos verstehen und interpretieren.',
     lessons: [
-      { title: 'Einführung in CV', completed: true },
-      { title: 'Bildverarbeitung Basics', completed: false },
-      { title: 'Convolutional Neural Networks', completed: false },
-      { title: 'Objekterkennung', completed: false },
-      { title: 'Image Segmentation', completed: false },
-      { title: 'Transfer Learning', completed: false },
-      { title: 'Praxisprojekt', completed: false },
+      { slug: 'einfuehrung-cv', title: 'Einführung in CV', completed: true },
+      { slug: 'bildverarbeitung', title: 'Bildverarbeitung Basics', completed: false },
+      { slug: 'cnn', title: 'Convolutional Neural Networks', completed: false },
+      { slug: 'objekterkennung', title: 'Objekterkennung', completed: false },
     ],
     level: 'Fortgeschritten',
     levelColor: '#FF5630',
@@ -129,18 +121,15 @@ const learningPaths: LearningPath[] = [
   },
   {
     id: 5,
+    slug: 'nlp',
     icon: <NLPIcon sx={{ fontSize: 32 }} />,
     title: 'Natural Language Processing',
     description: 'Verstehe, wie AI Sprache verarbeitet — von Tokenisierung bis zu Transformern.',
     lessons: [
-      { title: 'NLP Grundlagen', completed: true },
-      { title: 'Tokenisierung & Embeddings', completed: true },
-      { title: 'Sentiment Analysis', completed: false },
-      { title: 'Named Entity Recognition', completed: false },
-      { title: 'Transformer-Architektur', completed: false },
-      { title: 'Large Language Models', completed: false },
-      { title: 'Fine-Tuning Basics', completed: false },
-      { title: 'Praxisprojekt', completed: false },
+      { slug: 'nlp-grundlagen', title: 'NLP Grundlagen', completed: true },
+      { slug: 'tokenisierung-embeddings', title: 'Tokenisierung & Embeddings', completed: true },
+      { slug: 'sentiment-analysis', title: 'Sentiment Analysis', completed: false },
+      { slug: 'transformer-architektur', title: 'Transformer-Architektur', completed: false },
     ],
     level: 'Mittel',
     levelColor: '#FFC107',
@@ -148,15 +137,16 @@ const learningPaths: LearningPath[] = [
   },
   {
     id: 6,
+    slug: 'ethik-in-ai',
     icon: <EthicsIcon sx={{ fontSize: 32 }} />,
     title: 'Ethik in AI',
     description: 'Setze dich mit Bias, Fairness, Transparenz und verantwortungsvoller AI-Nutzung auseinander.',
     lessons: [
-      { title: 'Warum AI-Ethik?', completed: true },
-      { title: 'Bias in Daten & Modellen', completed: true },
-      { title: 'Fairness-Metriken', completed: true },
-      { title: 'Transparenz & Erklärbarkeit', completed: false },
-      { title: 'Regulierung & Gesetze', completed: false },
+      { slug: 'warum-ai-ethik', title: 'Warum AI-Ethik?', completed: true },
+      { slug: 'bias-in-daten', title: 'Bias in Daten & Modellen', completed: true },
+      { slug: 'fairness-metriken', title: 'Fairness-Metriken', completed: true },
+      { slug: 'transparenz', title: 'Transparenz & Erklärbarkeit', completed: false },
+      { slug: 'regulierung', title: 'Regulierung & Gesetze', completed: false },
     ],
     level: 'Einsteiger',
     levelColor: '#00A76F',
@@ -185,6 +175,7 @@ const itemVariants = {
 // --- Component ---
 
 export default function LearningPathsPage() {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('Alle');
   const [search, setSearch] = useState('');
   const [selectedPath, setSelectedPath] = useState<LearningPath | null>(null);
@@ -447,12 +438,15 @@ export default function LearningPathsPage() {
               {selectedPath.lessons.map((lesson, idx) => (
                 <ListItem
                   key={idx}
+                  onClick={() => navigate(`/learn/${selectedPath.slug}/${lesson.slug}`)}
                   sx={{
                     px: 1.5,
                     py: 1,
                     borderRadius: 1,
                     mb: 0.5,
+                    cursor: 'pointer',
                     bgcolor: lesson.completed ? 'rgba(0,167,111,0.08)' : 'transparent',
+                    '&:hover': { bgcolor: 'rgba(145,158,171,0.08)' },
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 32 }}>

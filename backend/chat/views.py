@@ -18,11 +18,22 @@ DEFAULT_SYSTEM_PROMPT = (
 
 
 class ChatView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = ChatRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Dev fallback: use first user if anonymous
+        user = request.user
+        if not user.is_authenticated:
+            from django.contrib.auth import get_user_model
+            user = get_user_model().objects.first()
+            if not user:
+                return Response(
+                    {"detail": "No user available"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         user_message = serializer.validated_data["message"]
         lesson_id = serializer.validated_data.get("lesson_id")
@@ -43,7 +54,7 @@ class ChatView(APIView):
 
         # 2. Load conversation history (last 20 messages for this user + lesson)
         history = ChatMessage.objects.filter(
-            user=request.user,
+            user=user,
             lesson=lesson,
         ).order_by("created_at")[:20]
 
@@ -69,13 +80,13 @@ class ChatView(APIView):
 
         # 5. Save messages
         ChatMessage.objects.create(
-            user=request.user,
+            user=user,
             lesson=lesson,
             role="user",
             content=user_message,
         )
         ChatMessage.objects.create(
-            user=request.user,
+            user=user,
             lesson=lesson,
             role="assistant",
             content=assistant_message,
@@ -84,7 +95,7 @@ class ChatView(APIView):
         # 6. Check first_chat achievement
         achievement_unlocked = None
         user_message_count = ChatMessage.objects.filter(
-            user=request.user,
+            user=user,
             role="user",
         ).count()
 
@@ -92,7 +103,7 @@ class ChatView(APIView):
             try:
                 achievement = Achievement.objects.get(slug="first_chat")
                 _, created = UserAchievement.objects.get_or_create(
-                    user=request.user,
+                    user=user,
                     achievement=achievement,
                 )
                 if created:

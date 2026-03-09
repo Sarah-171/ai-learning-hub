@@ -8,6 +8,7 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import AchievementsPage from './pages/AchievementsPage';
 import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
+import LessonPage from './pages/LessonPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/learn" element={<LearningPathsPage />} />
+            <Route path="/learn/:pathSlug/:lessonSlug" element={<LessonPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/chat" element={<ChatPage />} />
