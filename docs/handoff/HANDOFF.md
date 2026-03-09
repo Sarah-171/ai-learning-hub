@@ -1,13 +1,14 @@
 # Handoff — AI Learning Hub
 
 ## Current State
-Phase 3 complete — All pages implemented, API connected, AI Chat functional.
+Phase 4 complete — All pages, API, AI Chat, and Progress Report Agent functional.
 
 ## Last Completed
 - Phase 0: All tools set up (Claude Desktop, Claude Code, GitHub, Jira, Confluence)
 - Phase 1: Project configuration (CLAUDE.md, Django + React scaffolding)
 - Phase 2: Core UI + Backend API
 - Phase 3: All frontend pages + Chat integration
+- Phase 4: Progress Report Agent + Email system
 
 ### Frontend (React + Vite + TypeScript + MUI v7)
 - **DashboardPage** — Animated dashboard: StatCards (CountUp), Lernpfad preview, Leaderboard, Quick Action
@@ -35,9 +36,31 @@ Phase 3 complete — All pages implemented, API connected, AI Chat functional.
   - `GET /lessons/{slug}/` — Single lesson
   - `POST /lessons/{slug}/complete/` — Mark lesson complete + award XP
   - `POST /chat/` — AI chat via Anthropic API (with lesson context or free chat)
+  - `GET /admin/progress-report/` — JSON progress report (staff only)
 - **Anthropic integration**: Claude Sonnet 4, conversation history (last 20 msgs), first_chat achievement auto-unlock
+- **Progress Report Agent**: Management command `progress_report --email <addr> [--days N] [--format html|text]`
+  - Collects per-user stats: level, XP, streak, completed lessons, path progress, achievements
+  - HTML email with dark theme, inline CSS, progress bars
+  - Text fallback format available
+  - Console backend when no SMTP credentials configured
+- **Email config**: SMTP with auto-fallback to console backend (see `.env.example`)
 - **Superuser**: admin / admin123
 - **Admin panel**: All models registered with list_display
+
+## Startup Commands
+```powershell
+# Backend
+cd backend
+.\.venv\Scripts\python.exe manage.py runserver
+
+# Frontend
+cd frontend
+npm run dev
+
+# Progress Report
+cd backend
+.\.venv\Scripts\python.exe manage.py progress_report --email recipient@example.com
+```
 
 ## Next Steps
 - Add proper authentication (login/register flow, JWT or session-based)
