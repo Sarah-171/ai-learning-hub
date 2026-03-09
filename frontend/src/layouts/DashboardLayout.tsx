@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
+  Avatar,
   Box,
+  Divider,
   Drawer,
   List,
   ListItemButton,
@@ -32,7 +34,6 @@ const navItems = [
   { label: 'Leaderboard', icon: <LeaderboardIcon />, path: '/leaderboard' },
   { label: 'Achievements', icon: <AchievementsIcon />, path: '/achievements' },
   { label: 'AI Chat', icon: <ChatIcon />, path: '/chat' },
-  { label: 'Profil', icon: <PersonIcon />, path: '/profile' },
 ];
 
 export default function DashboardLayout() {
@@ -55,6 +56,8 @@ export default function DashboardLayout() {
             overflowX: 'hidden',
             bgcolor: 'background.paper',
             borderRight: '1px dashed rgba(145,158,171,0.2)',
+            display: 'flex',
+            flexDirection: 'column',
           },
         }}
       >
@@ -69,7 +72,7 @@ export default function DashboardLayout() {
           </IconButton>
         </Box>
 
-        <List sx={{ px: 1 }}>
+        <List sx={{ px: 1, flexGrow: 1 }}>
           {navItems.map((item) => (
             <ListItemButton
               key={item.path}
@@ -90,6 +93,39 @@ export default function DashboardLayout() {
             </ListItemButton>
           ))}
         </List>
+
+        <Divider sx={{ borderStyle: 'dashed', borderColor: 'rgba(145,158,171,0.2)' }} />
+
+        <Box
+          onClick={() => navigate('/profile')}
+          sx={{
+            p: 2,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            cursor: 'pointer',
+            justifyContent: open ? 'flex-start' : 'center',
+            '&:hover': { bgcolor: 'rgba(145,158,171,0.08)' },
+            transition: 'background-color 0.2s',
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 36,
+              height: 36,
+              bgcolor: 'primary.main',
+              fontSize: 14,
+              fontWeight: 700,
+            }}
+          >
+            WS
+          </Avatar>
+          {open && (
+            <Typography variant="body2" fontWeight={600} noWrap>
+              Workshop User
+            </Typography>
+          )}
+        </Box>
       </Drawer>
 
       {/* Main area */}
