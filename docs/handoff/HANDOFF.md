@@ -40,9 +40,9 @@ Phase 5 complete — Admin Report UI with persistent progress reports.
   - `GET /lessons/{slug}/` — Single lesson
   - `POST /lessons/{slug}/complete/` — Mark lesson complete + award XP
   - `POST /chat/` — AI chat via Anthropic API (with lesson context or free chat)
-  - `GET /reports/` — List all reports (IsAdminUser)
-  - `GET /reports/{id}/` — Single report with full data (IsAdminUser)
-  - `POST /reports/generate/` — Generate new report (IsAdminUser)
+  - `GET /reports/` — List all reports (AllowAny for dev)
+  - `GET /reports/{id}/` — Single report with full data (AllowAny for dev)
+  - `POST /reports/generate/` — Generate new report (AllowAny for dev)
 - **Anthropic integration**: Claude Sonnet 4, conversation history (last 20 msgs), first_chat achievement auto-unlock
 - **Progress Report**: Management command `progress_report` (no args needed)
   - Collects all user stats: level, XP, streak, completed lessons, path progress, achievements
@@ -77,7 +77,6 @@ cd backend
 ## Known Issues
 - Anthropic API key in `.env` is invalid — chat returns 503
 - Dashboard and LearningPathsPage use hardcoded dummy data (not API-connected)
-- Report endpoints require admin auth (BasicAuth with admin/admin123)
-- AllowAny on most endpoints for dev (needs auth before production)
+- All endpoints set to AllowAny for dev (needs auth before production)
 - Dev fallback: anonymous requests use first User from DB
 - No tests written yet
