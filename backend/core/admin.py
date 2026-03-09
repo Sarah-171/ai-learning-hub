@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Achievement, UserAchievement, UserProfile
+from .models import Achievement, ProgressReport, UserAchievement, UserProfile
 
 
 @admin.register(UserProfile)
@@ -16,3 +16,8 @@ class AchievementAdmin(admin.ModelAdmin):
 @admin.register(UserAchievement)
 class UserAchievementAdmin(admin.ModelAdmin):
     list_display = ("user", "achievement", "unlocked_at")
+
+
+@admin.register(ProgressReport)
+class ProgressReportAdmin(admin.ModelAdmin):
+    list_display = ("name", "created_at", "total_users", "avg_level", "total_completed_lessons")

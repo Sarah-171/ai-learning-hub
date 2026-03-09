@@ -20,6 +20,7 @@ import {
   Leaderboard as LeaderboardIcon,
   EmojiEvents as AchievementsIcon,
   Chat as ChatIcon,
+  Assessment as AssessmentIcon,
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
@@ -33,6 +34,7 @@ const navItems = [
   { label: 'Leaderboard', icon: <LeaderboardIcon />, path: '/leaderboard' },
   { label: 'Achievements', icon: <AchievementsIcon />, path: '/achievements' },
   { label: 'AI Chat', icon: <ChatIcon />, path: '/chat' },
+  { label: 'Admin', icon: <AssessmentIcon />, path: '/admin/reports' },
 ];
 
 export default function DashboardLayout() {
@@ -76,7 +78,7 @@ export default function DashboardLayout() {
             <ListItemButton
               key={item.path}
               onClick={() => navigate(item.path)}
-              selected={location.pathname === item.path}
+              selected={item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)}
               sx={{
                 borderRadius: 1.5,
                 mb: 0.5,

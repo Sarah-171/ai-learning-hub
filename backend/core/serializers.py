@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Achievement, UserAchievement, UserProfile
+from .models import Achievement, ProgressReport, UserAchievement, UserProfile
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -31,3 +31,15 @@ class AchievementSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return UserAchievement.objects.filter(user=request.user, achievement=obj).exists()
         return False
+
+
+class ProgressReportListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgressReport
+        fields = ("id", "name", "created_at", "total_users", "avg_level", "total_completed_lessons")
+
+
+class ProgressReportDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProgressReport
+        fields = ("id", "name", "created_at", "data", "summary", "total_users", "avg_level", "total_completed_lessons")

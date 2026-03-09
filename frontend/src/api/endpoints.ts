@@ -16,3 +16,9 @@ export const getProfile = () => client.get('profile/');
 export const getLeaderboard = () => client.get('leaderboard/');
 
 export const getAchievements = () => client.get('achievements/');
+
+export const getReports = () => client.get('reports/');
+
+export const getReport = (id: number) => client.get(`reports/${id}/`);
+
+export const generateReport = () => client.post('reports/generate/');

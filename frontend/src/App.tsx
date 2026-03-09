@@ -9,6 +9,8 @@ import AchievementsPage from './pages/AchievementsPage';
 import ChatPage from './pages/ChatPage';
 import ProfilePage from './pages/ProfilePage';
 import LessonPage from './pages/LessonPage';
+import ReportsPage from './pages/ReportsPage';
+import ReportDetailPage from './pages/ReportDetailPage';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/admin/reports" element={<ReportsPage />} />
+            <Route path="/admin/reports/:id" element={<ReportDetailPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

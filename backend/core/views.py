@@ -3,9 +3,15 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .management.commands.progress_report import collect_report_data
-from .models import Achievement, UserProfile
-from .serializers import AchievementSerializer, LeaderboardSerializer, UserProfileSerializer
+from .management.commands.progress_report import create_report
+from .models import Achievement, ProgressReport, UserProfile
+from .serializers import (
+    AchievementSerializer,
+    LeaderboardSerializer,
+    ProgressReportDetailSerializer,
+    ProgressReportListSerializer,
+    UserProfileSerializer,
+)
 
 
 class ProfileView(APIView):
@@ -36,15 +42,31 @@ class AchievementsView(APIView):
         return Response(serializer.data)
 
 
-class ProgressReportView(APIView):
+class ReportListView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request):
-        days = int(request.query_params.get("days", 7))
-        data = collect_report_data(days)
-        # Convert datetime to string for JSON
-        data["date"] = data["date"].isoformat()
-        for u in data["users"]:
-            if u["last_activity"]:
-                u["last_activity"] = u["last_activity"].isoformat()
-        return Response(data)
+        reports = ProgressReport.objects.all()
+        serializer = ProgressReportListSerializer(reports, many=True)
+        return Response(serializer.data)
+
+
+class ReportDetailView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, pk):
+        try:
+            report = ProgressReport.objects.get(pk=pk)
+        except ProgressReport.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ProgressReportDetailSerializer(report)
+        return Response(serializer.data)
+
+
+class ReportGenerateView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        report = create_report()
+        serializer = ProgressReportDetailSerializer(report)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

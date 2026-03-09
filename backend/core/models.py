@@ -56,3 +56,19 @@ class UserAchievement(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.achievement.name}"
+
+
+class ProgressReport(models.Model):
+    name = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField(default=dict)
+    summary = models.TextField(blank=True, default="")
+    total_users = models.IntegerField(default=0)
+    avg_level = models.FloatField(default=0)
+    total_completed_lessons = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.name
