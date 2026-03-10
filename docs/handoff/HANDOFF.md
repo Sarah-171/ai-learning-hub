@@ -1,82 +1,112 @@
 # Handoff — AI Learning Hub
 
 ## Current State
-Phase 5 complete — Admin Report UI with persistent progress reports.
+End of Day 2. Phases 0-5 complete. Phase 6 mostly complete. AI Chat has API key issue.
 
-## Last Completed
-- Phase 0: All tools set up (Claude Desktop, Claude Code, GitHub, Jira, Confluence)
-- Phase 1: Project configuration (CLAUDE.md, Django + React scaffolding)
-- Phase 2: Core UI + Backend API
-- Phase 3: All frontend pages + Chat integration
-- Phase 4: Progress Report Agent + Email system
-- Phase 5: Admin Report UI — persistent reports, list/detail views, generate from frontend
+## BLOCKER — AI Chat nicht funktional
+- Der Anthropic API Key ist ungültig (401 Authentication Error)
+- Ein neuer Key wurde auf console.anthropic.com erstellt, aber noch nicht getestet
+- NÄCHSTER SCHRITT beim Fortsetzen:
+  1. Neuen Key testen in PowerShell:
+     ```
+     cd C:\Workshop\ai-learning-hub\backend
+     .\.venv\Scripts\python.exe -c "from anthropic import Anthropic; c = Anthropic(api_key='DEIN_KEY'); r = c.messages.create(model='claude-sonnet-4-20250514', max_tokens=50, messages=[{'role':'user','content':'Hallo'}]); print(r.content[0].text)"
+     ```
+  2. Wenn Antwort kommt → Key in backend/.env eintragen:
+     ```
+     notepad backend\.env
+     ```
+     Inhalt: ANTHROPIC_API_KEY=dein_funktionierender_key
+  3. Backend neu starten
+  4. Chat im Frontend testen
 
-### Frontend (React + Vite + TypeScript + MUI v7)
-- **DashboardPage** — Animated dashboard: StatCards (CountUp), Lernpfad preview, Leaderboard, Quick Action
-- **LearningPathsPage** — 6 Lernpfade with search, filter chips, detail drawer with clickable lessons
-- **LessonPage** — Splitscreen: lesson content (60%) + AI tutor chat (40%), breadcrumbs, complete button (+XP)
-- **LeaderboardPage** — Top 10 ranked table with medals, avatars, highlighted current user, API-connected
-- **AchievementsPage** — Achievement cards grid, locked/unlocked state, counter chip, API-connected
-- **ChatPage** — Fullscreen free chat with welcome message, typing indicator
-- **ProfilePage** — User avatar, level/XP stats, progress bar to next level, API-connected
-- **ReportsPage** — Report list table, "Neuen Report generieren" button, click to detail view
-- **ReportDetailPage** — Summary cards (Users/Level/Lektionen), per-user cards with XP progress, path progress bars, lesson chips, achievements, Framer Motion stagger
-- **ChatPanel** — Shared chat component (used in LessonPage + ChatPage): messages, typing dots, auto-scroll, error handling
-- **StatCard** — Reusable card with RAF-based CountUp, gradient overlay, hover effects
-- **API Client** — Axios instance (`src/api/client.ts`) + endpoint functions (`src/api/endpoints.ts`)
-- **DashboardLayout** — Collapsible sidebar with Admin entry + user avatar "WS" at bottom
-- Dark theme, Framer Motion v12 animations, responsive grids throughout
+## How to Resume
+1. Open two PowerShell terminals
+2. Terminal 1: `cd C:\Workshop\ai-learning-hub\backend` → `.\.venv\Scripts\python.exe manage.py runserver`
+3. Terminal 2: `cd C:\Workshop\ai-learning-hub\frontend` → `npm run dev`
+4. Open http://localhost:5173 in browser
+5. Fix AI Chat first (see BLOCKER above)
 
-### Backend (Django 5.x + DRF)
-- **Models**: UserProfile (auto-create via signal), Achievement, UserAchievement, LearningPath, Lesson, LessonProgress, ChatMessage, ProgressReport
-- **ProgressReport model**: name (YYYYMMDD-Fortschrittstracking), data (JSONField with per-user stats), summary (HTML), total_users, avg_level, total_completed_lessons
-- **Seed data**: 3 learning paths (AI Grundlagen, Prompt Engineering, Agentic Workflows), 12 lessons, 5 achievements
-- **API endpoints** (all under `/api/v1/`):
-  - `GET /profile/` — User profile
-  - `GET /leaderboard/` — Top 10 by XP
-  - `GET /achievements/` — All achievements + unlock status
-  - `GET /paths/` — All learning paths with lesson count + progress
-  - `GET /paths/{slug}/` — Single path with all lessons
-  - `GET /lessons/{slug}/` — Single lesson
-  - `POST /lessons/{slug}/complete/` — Mark lesson complete + award XP
-  - `POST /chat/` — AI chat via Anthropic API (with lesson context or free chat)
-  - `GET /reports/` — List all reports (AllowAny for dev)
-  - `GET /reports/{id}/` — Single report with full data (AllowAny for dev)
-  - `POST /reports/generate/` — Generate new report (AllowAny for dev)
-- **Anthropic integration**: Claude Sonnet 4, conversation history (last 20 msgs), first_chat achievement auto-unlock
-- **Progress Report**: Management command `progress_report` (no args needed)
-  - Collects all user stats: level, XP, streak, completed lessons, path progress, achievements
-  - Saves to DB as ProgressReport (update_or_create for same-day reports)
-  - No email — all reports accessible via Admin UI
-- **Superuser**: admin / admin123
-- **Admin panel**: All models registered with list_display (incl. ProgressReport)
+## Completed Phases
 
-## Startup Commands
-```powershell
-# Backend
-cd backend
-.\.venv\Scripts\python.exe manage.py runserver
+### Phase 0 — Tools Setup ✅
+- Claude Max, Chrome Extension, GitHub Repo (private), PATs
+- Claude Desktop MCP (Filesystem, GitHub, Atlassian)
+- Claude Code installed and authenticated
 
-# Frontend
-cd frontend
-npm run dev
+### Phase 1 — Claude Code Configuration ✅
+- CLAUDE.md, HANDOFF.md, Commands, Hooks, Settings
+- PowerShell shortcuts (backend, frontend, tests, project)
 
-# Generate Progress Report (CLI)
-cd backend
-.\.venv\Scripts\python.exe manage.py progress_report
-```
+### Phase 2 — Project Structure ✅
+- Backend: Django 5.x + DRF + SQLite, apps: core, lessons, chat
+- Frontend: React 18 + Vite + TypeScript + MUI v5 Dark Theme
+
+### Phase 3 — Dashboard & Visual WoW Effect ✅
+- Animated StatCards, Learning Path cards, Leaderboard snippet
+- Collapsible Sidebar with MUI Icons and navigation
+
+### Phase 4 — Backend Models & API ✅
+- Models: UserProfile, Achievement, UserAchievement, LearningPath, Lesson, LessonProgress, ChatMessage
+- Seed Data: 3 Learning Paths, 12 Lessons, 5 Achievements
+- REST API fully operational
+
+### Phase 5 — AI Chat Integration ⚠️ (Backend done, Frontend done, API Key broken)
+- POST /api/v1/chat/ endpoint implemented
+- LessonPage Splitscreen + ChatPage free chat built
+- Shared ChatPanel component
+- BLOCKED: API Key invalid (see BLOCKER section)
+
+### Phase 6 — Gamification (MOSTLY COMPLETE)
+- ✅ Leaderboard page — working with real data
+- ✅ Achievements page — working with real data
+- ✅ Profile overview — /profile shows all users alphabetically
+- ✅ Profile detail — /profile/{username} shows individual profile
+- ✅ Dashboard — connected to real API data
+- ⚠️ XP/Level calculation on lesson complete — not fully verified
+
+### Admin Reports ✅
+- ProgressReport model with daily scheduler (09:00 Uhr)
+- Management commands: progress_report, seed_testdata, seed_historical_data
+- Reports page in frontend: /admin/reports
+- Report generation button working
+- AllowAny on all report endpoints
+- "No activity" handling: Shows "Kein Training stattgefunden" message
+
+### Confluence ✅
+- Project documentation page created
+
+## Test Users
+| Username | Password | Level | XP | Completed Lessons |
+|----------|----------|-------|----|-------------------|
+| admin2   | (user pw)| -     | -  | -                 |
+| anna     | test123  | 1     | 80 | 6                 |
+| marco    | test123  | 1     | 40 | 3                 |
+| lisa     | test123  | 2     | 150| 10                |
+| admin    | admin123 | 1     | 20 | 2                 |
 
 ## Next Steps
-- Add proper authentication (login/register flow, JWT or session-based)
-- Replace frontend dummy data with live API data (Dashboard, LearningPaths still use hardcoded data)
-- Write tests (CLAUDE.md demands 10-20+ per feature — currently 0 tests)
-- Add Markdown rendering for lesson content
-- Implement streak tracking logic
-- Add achievement auto-check on lesson completion
+1. FIX: AI Chat API Key (see BLOCKER)
+2. Phase 7: Learning Path detail pages
+3. Phase 8: Reporting & Analytics (optional)
+4. Polish: Login page, error handling, responsive fixes
 
-## Known Issues
-- Anthropic API key in `.env` is invalid — chat returns 503
-- Dashboard and LearningPathsPage use hardcoded dummy data (not API-connected)
-- All endpoints set to AllowAny for dev (needs auth before production)
-- Dev fallback: anonymous requests use first User from DB
-- No tests written yet
+## Tech Details
+- Backend: http://127.0.0.1:8000
+- Frontend: http://localhost:5173
+- API base: /api/v1/
+- Chat model: claude-sonnet-4-20250514
+- DB: SQLite
+- Scheduler: django-apscheduler, daily at 09:00
+
+## Verification Commands
+- Backend: cd backend && .\.venv\Scripts\python.exe manage.py runserver
+- Frontend: cd frontend && npm run dev
+- Tests: cd backend && .\.venv\Scripts\python.exe -m pytest -q
+- Seed lessons: .\.venv\Scripts\python.exe manage.py seed_lessons
+- Seed test users: .\.venv\Scripts\python.exe manage.py seed_testdata
+- Seed historical data: .\.venv\Scripts\python.exe manage.py seed_historical_data
+- Generate report: .\.venv\Scripts\python.exe manage.py progress_report
+- API test: http://127.0.0.1:8000/api/v1/paths/
+- Reports: http://127.0.0.1:8000/api/v1/reports/
+- Profiles: http://127.0.0.1:8000/api/v1/profiles/
