@@ -21,6 +21,7 @@ import {
   EmojiEvents as AchievementsIcon,
   Chat as ChatIcon,
   Assessment as AssessmentIcon,
+  Person as PersonIcon,
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
@@ -34,6 +35,7 @@ const navItems = [
   { label: 'Leaderboard', icon: <LeaderboardIcon />, path: '/leaderboard' },
   { label: 'Achievements', icon: <AchievementsIcon />, path: '/achievements' },
   { label: 'AI Chat', icon: <ChatIcon />, path: '/chat' },
+  { label: 'Profil', icon: <PersonIcon />, path: '/profile' },
   { label: 'Admin', icon: <AssessmentIcon />, path: '/admin/reports' },
 ];
 

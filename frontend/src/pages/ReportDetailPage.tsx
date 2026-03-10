@@ -12,7 +12,7 @@ import {
   IconButton,
   Grid,
 } from '@mui/material';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon, Info as InfoIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { getReport } from '../api/endpoints';
 
@@ -40,8 +40,10 @@ interface ReportDetail {
   total_users: number;
   avg_level: number;
   total_completed_lessons: number;
+  summary: string;
   data: {
     users: UserData[];
+    no_activity?: boolean;
   };
 }
 
@@ -115,6 +117,7 @@ export default function ReportDetailPage() {
   }
 
   const users = report.data?.users ?? [];
+  const noActivity = report.data?.no_activity === true;
 
   return (
     <motion.div
@@ -136,6 +139,13 @@ export default function ReportDetailPage() {
           Erstellt am {formatDate(report.created_at)}
         </Typography>
       </Box>
+
+      {/* No activity banner */}
+      {noActivity && (
+        <Alert severity="warning" icon={<InfoIcon />} sx={{ mb: 3, fontSize: '1rem' }}>
+          Kein Training stattgefunden und somit kein Fortschritt erzeugt.
+        </Alert>
+      )}
 
       {/* Summary cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -165,7 +175,7 @@ export default function ReportDetailPage() {
         </Grid>
       </Grid>
 
-      {/* User cards */}
+      {/* User cards — only show if there was activity */}
       <motion.div variants={container} initial="hidden" animate="show">
         {users.map((user) => {
           const xpInLevel = user.xp % XP_PER_LEVEL;

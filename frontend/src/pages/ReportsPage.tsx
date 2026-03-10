@@ -11,10 +11,11 @@ import {
   TableRow,
   Paper,
   Button,
+  Chip,
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { Assessment as AssessmentIcon, Add as AddIcon } from '@mui/icons-material';
+import { Assessment as AssessmentIcon, Add as AddIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { getReports, generateReport } from '../api/endpoints';
 
@@ -25,6 +26,7 @@ interface ReportSummary {
   total_users: number;
   avg_level: number;
   total_completed_lessons: number;
+  summary: string;
 }
 
 export default function ReportsPage() {
@@ -40,8 +42,9 @@ export default function ReportsPage() {
       const res = await getReports();
       setReports(res.data);
       setError('');
-    } catch {
-      setError('Reports konnten nicht geladen werden. Admin-Rechte erforderlich.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler';
+      setError(`Reports konnten nicht geladen werden: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -97,6 +100,10 @@ export default function ReportsPage() {
         </Button>
       </Box>
 
+      <Alert severity="info" icon={<ScheduleIcon />} sx={{ mb: 2 }}>
+        Reports werden automatisch täglich um 09:00 Uhr erstellt.
+      </Alert>
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -123,23 +130,34 @@ export default function ReportsPage() {
                 <TableCell sx={{ fontWeight: 700 }} align="center">Aktive User</TableCell>
                 <TableCell sx={{ fontWeight: 700 }} align="center">Ø Level</TableCell>
                 <TableCell sx={{ fontWeight: 700 }} align="center">Abgeschlossene Lektionen</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {reports.map((report) => (
-                <TableRow
-                  key={report.id}
-                  hover
-                  onClick={() => navigate(`/admin/reports/${report.id}`)}
-                  sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }}
-                >
-                  <TableCell sx={{ fontWeight: 600 }}>{report.name}</TableCell>
-                  <TableCell>{formatDate(report.created_at)}</TableCell>
-                  <TableCell align="center">{report.total_users}</TableCell>
-                  <TableCell align="center">{report.avg_level}</TableCell>
-                  <TableCell align="center">{report.total_completed_lessons}</TableCell>
-                </TableRow>
-              ))}
+              {reports.map((report) => {
+                const noActivity = report.summary.includes('Kein Training stattgefunden') || report.summary.includes('Keine Benutzer');
+                return (
+                  <TableRow
+                    key={report.id}
+                    hover
+                    onClick={() => navigate(`/admin/reports/${report.id}`)}
+                    sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }}
+                  >
+                    <TableCell sx={{ fontWeight: 600 }}>{report.name}</TableCell>
+                    <TableCell>{formatDate(report.created_at)}</TableCell>
+                    <TableCell align="center">{report.total_users}</TableCell>
+                    <TableCell align="center">{report.avg_level}</TableCell>
+                    <TableCell align="center">{report.total_completed_lessons}</TableCell>
+                    <TableCell>
+                      {noActivity ? (
+                        <Chip label="Kein Fortschritt" size="small" sx={{ bgcolor: 'rgba(145,158,171,0.16)', color: 'text.secondary', fontStyle: 'italic' }} />
+                      ) : (
+                        <Chip label="Aktivität" size="small" sx={{ bgcolor: 'rgba(0,167,111,0.16)', color: '#00A76F', fontWeight: 600 }} />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

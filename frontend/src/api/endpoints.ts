@@ -13,6 +13,10 @@ export const sendChatMessage = (message: string, lessonId?: number) =>
 
 export const getProfile = () => client.get('profile/');
 
+export const getProfiles = () => client.get('profiles/');
+
+export const getProfileByUsername = (username: string) => client.get(`profiles/${username}/`);
+
 export const getLeaderboard = () => client.get('leaderboard/');
 
 export const getAchievements = () => client.get('achievements/');

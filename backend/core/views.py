@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import F
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -10,17 +11,46 @@ from .serializers import (
     LeaderboardSerializer,
     ProgressReportDetailSerializer,
     ProgressReportListSerializer,
+    UserProfileDetailSerializer,
     UserProfileSerializer,
 )
+
+User = get_user_model()
 
 
 class ProfileView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        if not request.user.is_authenticated:
-            return Response({"detail": "Not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
-        serializer = UserProfileSerializer(request.user.profile)
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            # Dev fallback: use first user from DB
+            user = User.objects.first()
+            if not user:
+                return Response({"detail": "No users found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserProfileSerializer(user.profile)
+        return Response(serializer.data)
+
+
+class ProfileListView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        profiles = UserProfile.objects.select_related("user").order_by("user__username")
+        serializer = UserProfileSerializer(profiles, many=True)
+        return Response(serializer.data)
+
+
+class ProfileDetailByUsernameView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, username):
+        try:
+            profile = UserProfile.objects.select_related("user").get(user__username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserProfileDetailSerializer(profile)
         return Response(serializer.data)
 
 

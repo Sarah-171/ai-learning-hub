@@ -2,16 +2,44 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from chat.models import ChatMessage
 from core.models import ProgressReport, UserAchievement, UserProfile
 from lessons.models import LearningPath, LessonProgress
 
 User = get_user_model()
 
 
+def _get_last_report_time():
+    """Return the created_at of the most recent report, or yesterday."""
+    last = ProgressReport.objects.order_by("-created_at").first()
+    if last:
+        return last.created_at
+    return timezone.now() - timezone.timedelta(days=1)
+
+
+def _has_activity_since(since):
+    """Check if any user had activity (lesson completed, chat, XP) since the given time."""
+    has_lessons = LessonProgress.objects.filter(
+        completed=True, completed_at__gte=since
+    ).exists()
+    if has_lessons:
+        return True
+
+    has_chat = ChatMessage.objects.filter(created_at__gte=since).exists()
+    if has_chat:
+        return True
+
+    has_xp = UserProfile.objects.filter(last_activity__gte=since).exists()
+    return has_xp
+
+
 def collect_report_data():
-    """Collect progress data for all active users."""
+    """Collect progress data for all users."""
     profiles = UserProfile.objects.select_related("user").all()
     paths = list(LearningPath.objects.prefetch_related("lessons").all())
+
+    since = _get_last_report_time()
+    activity = _has_activity_since(since)
 
     users_data = []
     total_completed = 0
@@ -83,16 +111,23 @@ def collect_report_data():
         "avg_level": avg_level,
         "total_completed": total_completed,
         "users": users_data,
+        "no_activity": not activity,
     }
 
 
 def render_summary_html(data):
     """Render a short HTML summary for the report."""
-    return f"""<div>
-<p><strong>{data['user_count']}</strong> aktive User,
-Ø Level <strong>{data['avg_level']}</strong>,
-<strong>{data['total_completed']}</strong> Lektionen abgeschlossen.</p>
-</div>"""
+    if data["user_count"] == 0:
+        return "Keine Benutzer registriert."
+
+    if data.get("no_activity"):
+        return "Kein Training stattgefunden und somit kein Fortschritt erzeugt."
+
+    return (
+        f"<div><p><strong>{data['user_count']}</strong> aktive User, "
+        f"Ø Level <strong>{data['avg_level']}</strong>, "
+        f"<strong>{data['total_completed']}</strong> Lektionen abgeschlossen.</p></div>"
+    )
 
 
 def create_report():
